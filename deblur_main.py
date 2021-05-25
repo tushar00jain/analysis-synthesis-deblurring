@@ -2,6 +2,7 @@ import argparse
 import time
 
 from tqdm import tqdm
+from glob import glob
 import numpy as np
 import os
 
@@ -72,23 +73,30 @@ def get_args():
 
 
 def create_output_filename(args, input_image_path):
-    # splitting the path into directory and filename
-    input_dir, fname = os.path.split(input_image_path)
-    # splitting filename into name and extension
-    fname, ext = os.path.splitext(fname)
+    # # splitting the path into directory and filename
+    # input_dir, fname = os.path.split(input_image_path)
+    # # splitting filename into name and extension
+    # fname, ext = os.path.splitext(fname)
 
-    os.makedirs(args.out_dir, exist_ok=True)
-    if args.suffix:
-        fname += args.suffix
+    out_path = os.path.join(args.out_dir, os.path.dirname(input_image_path)[1:])
+    os.makedirs(out_path, exist_ok=True)
 
-    return os.path.join(args.out_dir, fname + ext)
+    # os.makedirs(args.out_dir, exist_ok=True)
+    # if args.suffix:
+    #     fname += args.suffix
+
+    return os.path.join(args.out_dir, input_image_path[1:])
+
+def sorted_glob(pattern):
+    return sorted(glob(pattern))
 
 def get_images_paths_to_deblur(args):
-    if os.path.isfile(args.input_path):
-        images_paths = [args.input_path]
-    else:
-        assert os.path.isdir(args.input_path), f'argument "input_path" must be a path to a valid image or directory, but {args.input_path} is not :('
-        images_paths = utils.get_images_in_dir(args.input_path)
+    # if os.path.isfile(args.input_path):
+    #     images_paths = [args.input_path]
+    # else:
+    #     assert os.path.isdir(args.input_path), f'argument "input_path" must be a path to a valid image or directory, but {args.input_path} is not :('
+    #     images_paths = utils.get_images_in_dir(args.input_path)
+    images_paths = sorted_glob(args.input_path)
 
     if len(images_paths) == 0:
         raise ValueError(f"Couldn't find any images in \"{args.input_path}\"")
